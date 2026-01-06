@@ -13,12 +13,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create or Update Admin User
+        // Create or Update Admin User (use email as unique key to avoid missing column errors)
         User::updateOrCreate(
-            ['username' => 'admin'],
+            ['email' => 'admin@kemenhub.go.id'],
             [
                 'name' => 'Administrator',
-                'email' => 'admin@kemenhub.go.id',
+                'username' => 'admin',
                 'password' => Hash::make('admin123'),
                 'role' => 'admin',
                 'is_active' => true,
@@ -27,10 +27,10 @@ class DatabaseSeeder extends Seeder
 
         // Create or Update Regular User for testing
         User::updateOrCreate(
-            ['username' => 'user'],
+            ['email' => 'user@kemenhub.go.id'],
             [
                 'name' => 'User Biasa',
-                'email' => 'user@kemenhub.go.id',
+                'username' => 'user',
                 'password' => Hash::make('user123'),
                 'role' => 'user',
                 'is_active' => true,
