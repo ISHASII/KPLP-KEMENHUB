@@ -11,9 +11,6 @@ class LayananPublikController extends Controller
     {
         $allData = LayananPublik::orderBy('tanggal', 'desc')->get();
 
-        // atau kalau mau paginasi:
-        // $allData = LayananPublik::orderBy('tanggal', 'desc')->paginate(15);
-
         return view('layanan_publik', compact('allData'));
     }
 
