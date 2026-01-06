@@ -5,6 +5,7 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Auth\Middleware\RedirectIfAuthenticated; // Middleware bawaan Laravel
 use App\Http\Middleware\PreventAuthenticatedAccess;     // Middleware custom kamu (opsional)
+use App\Http\Middleware\AdminMiddleware;                // Middleware untuk role admin
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -17,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Ini sudah ada di Laravel, namanya 'guest'
         $middleware->alias([
             'guest' => RedirectIfAuthenticated::class,
+            'admin' => AdminMiddleware::class, // Middleware untuk proteksi halaman admin
         ]);
 
         // 2. Kalau kamu mau pakai middleware custom sendiri

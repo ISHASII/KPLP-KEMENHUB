@@ -74,6 +74,20 @@
                 }
             </style>
 
+            {{-- Flash Messages for Success/Error --}}
+            @if (session('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+            @if (session('error'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+
             <!-- ROW 1: LAYANAN PUBLIK (LEFT) + PPID (RIGHT) -->
             <div class="row">
                 <!-- LAYANAN -->
@@ -345,40 +359,40 @@
                 data: {
                     labels: @json($labels ?? []),
                     datasets: [{
-                            label: 'Penyidikan & Penyelidikan',
-                            data: @json($datasets['Penyidikan & Penyelidikan'] ?? []),
-                            backgroundColor: KH_PALETTE.blue1
-                        },
-                        {
-                            label: 'Patroli Kapal',
-                            data: @json($datasets['Patroli Kapal'] ?? []),
-                            backgroundColor: KH_PALETTE.blue2
-                        },
-                        {
-                            label: 'SAR',
-                            data: @json($datasets['SAR'] ?? []),
-                            backgroundColor: KH_PALETTE.yellow
-                        },
-                        {
-                            label: 'SNBP',
-                            data: @json($datasets['SNBP'] ?? []),
-                            backgroundColor: KH_PALETTE.teal
-                        },
-                        {
-                            label: 'Pengawasan Salvage',
-                            data: @json($datasets['Pengawasan Salvage'] ?? []),
-                            backgroundColor: KH_PALETTE.violet
-                        },
-                        {
-                            label: 'Marpol',
-                            data: @json($datasets['Marpol'] ?? []),
-                            backgroundColor: KH_PALETTE.orange
-                        },
-                        {
-                            label: 'Tamu Kantor',
-                            data: @json($datasets['Tamu Kantor'] ?? []),
-                            backgroundColor: KH_PALETTE.gray
-                        }
+                        label: 'Penyidikan & Penyelidikan',
+                        data: @json($datasets['Penyidikan & Penyelidikan'] ?? []),
+                        backgroundColor: KH_PALETTE.blue1
+                    },
+                    {
+                        label: 'Patroli Kapal',
+                        data: @json($datasets['Patroli Kapal'] ?? []),
+                        backgroundColor: KH_PALETTE.blue2
+                    },
+                    {
+                        label: 'SAR',
+                        data: @json($datasets['SAR'] ?? []),
+                        backgroundColor: KH_PALETTE.yellow
+                    },
+                    {
+                        label: 'SNBP',
+                        data: @json($datasets['SNBP'] ?? []),
+                        backgroundColor: KH_PALETTE.teal
+                    },
+                    {
+                        label: 'Pengawasan Salvage',
+                        data: @json($datasets['Pengawasan Salvage'] ?? []),
+                        backgroundColor: KH_PALETTE.violet
+                    },
+                    {
+                        label: 'Marpol',
+                        data: @json($datasets['Marpol'] ?? []),
+                        backgroundColor: KH_PALETTE.orange
+                    },
+                    {
+                        label: 'Tamu Kantor',
+                        data: @json($datasets['Tamu Kantor'] ?? []),
+                        backgroundColor: KH_PALETTE.gray
+                    }
                     ]
                 },
                 options: {
@@ -537,20 +551,20 @@
                 data: {
                     labels: @json($skmLabels ?? []),
                     datasets: [{
-                            label: 'Responden',
-                            data: @json($skmResponden ?? []),
-                            backgroundColor: KH_PALETTE.blue2
-                        },
-                        {
-                            label: 'IPK',
-                            data: @json($skmIpk ?? []),
-                            backgroundColor: KH_PALETTE.yellow
-                        },
-                        {
-                            label: 'IKM',
-                            data: @json($skmIkm ?? []),
-                            backgroundColor: KH_PALETTE.teal
-                        }
+                        label: 'Responden',
+                        data: @json($skmResponden ?? []),
+                        backgroundColor: KH_PALETTE.blue2
+                    },
+                    {
+                        label: 'IPK',
+                        data: @json($skmIpk ?? []),
+                        backgroundColor: KH_PALETTE.yellow
+                    },
+                    {
+                        label: 'IKM',
+                        data: @json($skmIkm ?? []),
+                        backgroundColor: KH_PALETTE.teal
+                    }
                     ]
                 },
                 options: {
@@ -628,15 +642,15 @@
                 data: {
                     labels: @json($mediaLabels ?? []),
                     datasets: [{
-                            label: 'Tayangan/Postingan',
-                            data: @json($mediaTayangan ?? []),
-                            backgroundColor: KH_PALETTE.blue2
-                        },
-                        {
-                            label: 'Pengikut',
-                            data: @json($mediaPengikut ?? []),
-                            backgroundColor: KH_PALETTE.yellow
-                        }
+                        label: 'Tayangan/Postingan',
+                        data: @json($mediaTayangan ?? []),
+                        backgroundColor: KH_PALETTE.blue2
+                    },
+                    {
+                        label: 'Pengikut',
+                        data: @json($mediaPengikut ?? []),
+                        backgroundColor: KH_PALETTE.yellow
+                    }
                     ]
                 },
                 options: {
@@ -710,15 +724,15 @@
                 data: {
                     labels: @json($beritaLabels ?? []),
                     datasets: [{
-                            label: 'Berita Positif',
-                            data: @json($beritaPositif ?? []),
-                            backgroundColor: KH_PALETTE.teal
-                        },
-                        {
-                            label: 'Berita Negatif',
-                            data: @json($beritaNegatif ?? []),
-                            backgroundColor: KH_PALETTE.blue1
-                        }
+                        label: 'Berita Positif',
+                        data: @json($beritaPositif ?? []),
+                        backgroundColor: KH_PALETTE.teal
+                    },
+                    {
+                        label: 'Berita Negatif',
+                        data: @json($beritaNegatif ?? []),
+                        backgroundColor: KH_PALETTE.blue1
+                    }
                     ]
                 },
                 options: {
@@ -876,30 +890,30 @@
                 data: {
                     labels: @json($pengelolaanLabels ?? []),
                     datasets: [{
-                            label: 'Belum Terverifikasi',
-                            data: @json($belumTerverifikasi ?? []),
-                            backgroundColor: KH_PALETTE.blue1
-                        },
-                        {
-                            label: 'Terdisposisi Belum Tindak Lanjut',
-                            data: @json($terdisposisiBelumTindakLanjut ?? []),
-                            backgroundColor: KH_PALETTE.blue2
-                        },
-                        {
-                            label: 'Terdisposisi Sedang Proses',
-                            data: @json($terdisposisiSedangProses ?? []),
-                            backgroundColor: KH_PALETTE.yellow
-                        },
-                        {
-                            label: 'Terdisposisi Selesai',
-                            data: @json($terdisposisiSelesai ?? []),
-                            backgroundColor: KH_PALETTE.teal
-                        },
-                        {
-                            label: 'Tertunda',
-                            data: @json($tertunda ?? []),
-                            backgroundColor: KH_PALETTE.violet
-                        }
+                        label: 'Belum Terverifikasi',
+                        data: @json($belumTerverifikasi ?? []),
+                        backgroundColor: KH_PALETTE.blue1
+                    },
+                    {
+                        label: 'Terdisposisi Belum Tindak Lanjut',
+                        data: @json($terdisposisiBelumTindakLanjut ?? []),
+                        backgroundColor: KH_PALETTE.blue2
+                    },
+                    {
+                        label: 'Terdisposisi Sedang Proses',
+                        data: @json($terdisposisiSedangProses ?? []),
+                        backgroundColor: KH_PALETTE.yellow
+                    },
+                    {
+                        label: 'Terdisposisi Selesai',
+                        data: @json($terdisposisiSelesai ?? []),
+                        backgroundColor: KH_PALETTE.teal
+                    },
+                    {
+                        label: 'Tertunda',
+                        data: @json($tertunda ?? []),
+                        backgroundColor: KH_PALETTE.violet
+                    }
                     ]
                 },
                 options: {

@@ -16,6 +16,7 @@
                 Dashboard
             </x-navlink>
 
+            @if(auth()->check() && auth()->user()->isAdmin())
             <x-navlink href="{{ url('/layanan-publik') }}" :active="request()->is('layanan-publik*')" icon="fa-globe">
                 Layanan Publik
             </x-navlink>
@@ -55,6 +56,7 @@
             <x-navlink href="{{ route('users.index') }}" :active="request()->routeIs('users.*')" icon="fa-users-gear">
                 Kelola Akun
             </x-navlink>
+            @endif
         </ul>
     </div>
 </aside>

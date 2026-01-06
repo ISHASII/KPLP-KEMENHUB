@@ -63,7 +63,20 @@
                                             @enderror
                                         </div>
                                     </div>
-                                    <!-- role field removed: role now always defaults to 'user' and cannot be edited -->
+                                    <div class="col-md-6 mb-3">
+                                        <div class="form-group">
+                                            <label for="role" class="form-control-label">Role <span
+                                                    class="text-danger">*</span></label>
+                                            <select class="form-control @error('role') is-invalid @enderror"
+                                                id="role" name="role" required>
+                                                <option value="user" {{ old('role') == 'user' ? 'selected' : '' }}>User</option>
+                                                <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
+                                            </select>
+                                            @error('role')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div class="row">
@@ -251,7 +264,9 @@
                                                                 </button>
                                                             </form>
                                                         @else
-                                                            <button type="button" class="btn btn-sm btn-info disabled" aria-disabled="true" title="Ini adalah akun Anda" style="pointer-events: none;">
+                                                            <button type="button" class="btn btn-sm btn-info disabled"
+                                                                aria-disabled="true" title="Ini adalah akun Anda"
+                                                                style="pointer-events: none;">
                                                                 <i class="fa-solid fa-user me-1"></i>
                                                                 <span class="text-uppercase small mb-0">Anda</span>
                                                             </button>
@@ -342,6 +357,7 @@
             document.getElementById('name').value = '';
             document.getElementById('username').value = '';
             document.getElementById('email').value = '';
+            document.getElementById('role').value = 'user';
             document.getElementById('password').value = '';
             document.getElementById('password_confirmation').value = '';
 

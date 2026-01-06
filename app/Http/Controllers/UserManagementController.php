@@ -29,6 +29,7 @@ class UserManagementController extends Controller
             'username' => 'required|string|max:255|unique:users,username',
             'email' => 'required|email|max:255|unique:users,email',
             'password' => ['required', 'confirmed', Password::min(8)],
+            'role' => 'required|in:admin,user',
         ], [
             'name.required' => 'Nama wajib diisi',
             'username.required' => 'Username wajib diisi',
@@ -39,15 +40,17 @@ class UserManagementController extends Controller
             'password.required' => 'Password wajib diisi',
             'password.confirmed' => 'Konfirmasi password tidak cocok',
             'password.min' => 'Password minimal 8 karakter',
+            'role.required' => 'Role wajib dipilih',
+            'role.in' => 'Role harus admin atau user',
         ]);
 
-        // Always create new accounts with role 'user'
+        // Create new account with selected role
         User::create([
             'name' => $request->name,
             'username' => $request->username,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => 'user',
+            'role' => $request->role,
             'is_active' => true,
         ]);
 
@@ -78,6 +81,7 @@ class UserManagementController extends Controller
             'username' => ['required', 'string', 'max:255', Rule::unique('users', 'username')->ignore($id)],
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($id)],
             'password' => ['nullable', 'confirmed', Password::min(8)],
+            'role' => 'required|in:admin,user',
         ], [
             'name.required' => 'Nama wajib diisi',
             'username.required' => 'Username wajib diisi',
@@ -87,11 +91,14 @@ class UserManagementController extends Controller
             'email.unique' => 'Email sudah digunakan',
             'password.confirmed' => 'Konfirmasi password tidak cocok',
             'password.min' => 'Password minimal 8 karakter',
+            'role.required' => 'Role wajib dipilih',
+            'role.in' => 'Role harus admin atau user',
         ]);
 
         $user->name = $request->name;
         $user->username = $request->username;
         $user->email = $request->email;
+        $user->role = $request->role;
 
         // Update password only if provided
         if ($request->filled('password')) {
@@ -115,6 +122,11 @@ class UserManagementController extends Controller
             return redirect()->back()->with('error', 'Anda tidak dapat menonaktifkan akun sendiri!');
         }
 
+        // Prevent deactivating other admin accounts
+        if ($user->isAdmin() && auth()->user()->id !== $user->id) {
+            return redirect()->back()->with('error', 'Anda tidak dapat menonaktifkan akun admin lain!');
+        }
+
         $user->is_active = !$user->is_active;
         $user->save();
 
@@ -132,6 +144,11 @@ class UserManagementController extends Controller
         // Prevent deleting own account
         if ($user->id === auth()->id()) {
             return redirect()->back()->with('error', 'Anda tidak dapat menghapus akun sendiri!');
+        }
+
+        // Prevent deleting admin accounts
+        if ($user->isAdmin()) {
+            return redirect()->back()->with('error', 'Akun admin tidak dapat dihapus!');
         }
 
         $user->delete();

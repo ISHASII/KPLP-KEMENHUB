@@ -17,7 +17,7 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [MainController::class, 'processLogin']);
     Route::get('/refresh-captcha', [MainController::class, 'refreshCaptcha'])->name('refresh.captcha');
     Route::get('/register', [MainController::class, 'register'])->name('register');
-    
+
     // Forgot Password Routes
     Route::get('/forgot-password', [MainController::class, 'forgotPassword'])->name('password.request');
     Route::post('/forgot-password', [MainController::class, 'processForgotPassword'])->name('password.email');
@@ -31,11 +31,14 @@ Route::middleware('auth')->group(function () {
     // Dashboard (root URL setelah login)
     Route::get('/', [MainController::class, 'index'])->name('dashboard');
 
+    // Logout (tetap bisa diakses semua user yang sudah login)
+    Route::post('/logout', [MainController::class, 'logout'])->name('logout');
+});
+
+// === ROUTE KHUSUS ADMIN (Protected by admin middleware) ===
+Route::middleware(['auth', 'admin'])->group(function () {
     // Shipping
     Route::get('/shipping', [MainController::class, 'shipping'])->name('shipping');
-
-    // Logout
-    Route::post('/logout', [MainController::class, 'logout'])->name('logout');
 
     // Layanan Publik
     Route::resource('layanan-publik', LayananPublikController::class)
@@ -77,7 +80,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/pengelolaan-laporan-masuk/{id}', [PengelolaanLaporanMasukController::class, 'update'])->name('laporan_masuk.update');
     Route::delete('/pengelolaan-laporan-masuk/{id}', [PengelolaanLaporanMasukController::class, 'destroy'])->name('laporan_masuk.destroy');
 
-    // Kelola Akun (User Management)
+    // Kelola Akun (User Management) - Hanya Admin yang bisa akses
     Route::get('/kelola-akun', [UserManagementController::class, 'index'])->name('users.index');
     Route::post('/kelola-akun/store', [UserManagementController::class, 'store'])->name('users.store');
     Route::put('/kelola-akun/{id}', [UserManagementController::class, 'update'])->name('users.update');
