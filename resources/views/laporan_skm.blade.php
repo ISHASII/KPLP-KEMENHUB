@@ -16,7 +16,8 @@
                             <h6 id="formTitle">Tambah Data Survei Kepuasan Masyarakat (SKM)</h6>
                         </div>
                         <div class="card-body">
-                            <form id="skmForm" action="{{ route('skm.store') }}" method="POST">
+                            <form id="skmForm" action="{{ route('skm.store') }}" method="POST"
+                                enctype="multipart/form-data">
                                 @csrf
                                 <input type="hidden" id="formMethod" name="_method" value="POST">
                                 <input type="hidden" id="dataId" name="id">
@@ -25,8 +26,8 @@
                                     <div class="col-md-3">
                                         <div class="form-group">
                                             <label for="tanggal" class="form-control-label">Tanggal Survei</label>
-                                            <input type="date" class="form-control" id="tanggal" name="tanggal"
-                                                required value="{{ date('Y-m-d') }}">
+                                            <input type="date" class="form-control" id="tanggal" name="tanggal" required
+                                                value="{{ date('Y-m-d') }}">
                                         </div>
                                     </div>
                                     <div class="col-md-3">
@@ -42,8 +43,7 @@
                                                 Kepuasan)</label>
                                             <div class="input-group">
                                                 <input type="number" step="0.01" class="form-control" id="ipk"
-                                                    name="ipk" min="0" max="100" value="0.00"
-                                                    required>
+                                                    name="ipk" min="0" max="100" value="0.00" required>
                                                 <span class="input-group-text">%</span>
                                             </div>
                                             <small class="text-muted">Contoh: 85.50</small>
@@ -55,11 +55,32 @@
                                                 Kualitas)</label>
                                             <div class="input-group">
                                                 <input type="number" step="0.01" class="form-control" id="ikm"
-                                                    name="ikm" min="0" max="100" value="0.00"
-                                                    required>
+                                                    name="ikm" min="0" max="100" value="0.00" required>
                                                 <span class="input-group-text">%</span>
                                             </div>
                                             <small class="text-muted">Contoh: 87.25</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row mt-3">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="gambar" class="form-control-label">Gambar (opsional)</label>
+                                            <input type="file" class="form-control" id="gambar" name="gambar"
+                                                accept="image/*">
+                                            <img id="gambarPreview" src=""
+                                                style="max-height:100px; display:none; margin-top:10px;">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="dokumen" class="form-control-label">Dokumen (opsional)</label>
+                                            <input type="file" class="form-control" id="dokumen" name="dokumen"
+                                                accept=".pdf,.doc,.docx">
+                                            <div id="dokumenPreview" style="margin-top:10px; display:none;">
+                                                <a href="#" target="_blank" id="dokumenLink">Lihat dokumen</a>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -153,16 +174,24 @@
                                                     </span>
                                                 </td>
                                                 <td class="text-center py-3">
+                                                    <button type="button" class="btn btn-sm btn-primary view-btn me-1"
+                                                        data-id="{{ $item->id }}" data-tanggal="{{ $item->tanggal }}"
+                                                        data-responden="{{ $item->responden }}" data-ipk="{{ $item->ipk }}"
+                                                        data-ikm="{{ $item->ikm }}"
+                                                        data-gambar-url="{{ $item->gambar ? asset('storage/' . $item->gambar) : '' }}"
+                                                        data-dokumen-url="{{ $item->dokumen ? asset('storage/' . $item->dokumen) : '' }}">
+                                                        Lihat
+                                                    </button>
                                                     <button type="button" class="btn btn-sm btn-info edit-btn me-1"
-                                                        data-id="{{ $item->id }}"
-                                                        data-tanggal="{{ $item->tanggal }}"
-                                                        data-responden="{{ $item->responden }}"
-                                                        data-ipk="{{ $item->ipk }}"
-                                                        data-ikm="{{ $item->ikm }}">
+                                                        data-id="{{ $item->id }}" data-tanggal="{{ $item->tanggal }}"
+                                                        data-responden="{{ $item->responden }}" data-ipk="{{ $item->ipk }}"
+                                                        data-ikm="{{ $item->ikm }}"
+                                                        data-gambar-url="{{ $item->gambar ? asset('storage/' . $item->gambar) : '' }}"
+                                                        data-dokumen-url="{{ $item->dokumen ? asset('storage/' . $item->dokumen) : '' }}">
                                                         Edit
                                                     </button>
-                                                    <form action="{{ route('skm.destroy', $item->id) }}"
-                                                        method="POST" class="d-inline">
+                                                    <form action="{{ route('skm.destroy', $item->id) }}" method="POST"
+                                                        class="d-inline">
                                                         @csrf
                                                         @method('DELETE')
                                                         <button type="submit" class="btn btn-sm btn-danger"
@@ -192,6 +221,46 @@
         </div>
     </main>
     <x-sidebar-plugin></x-sidebar-plugin>
+
+    <!-- Modal: View SKM -->
+    <div class="modal fade" id="viewSkmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detail Survei SKM</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <p><strong>Tanggal:</strong> <span id="skmViewTanggal"></span></p>
+                            <p><strong>Responden:</strong> <span id="skmViewResponden"></span></p>
+                            <p><strong>IPK:</strong> <span id="skmViewIpk"></span></p>
+                            <p><strong>IKM:</strong> <span id="skmViewIkm"></span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <div id="skmViewGambarContainer" style="margin-bottom:10px; display:none;">
+                                <strong>Gambar:</strong>
+                                <div><img id="skmViewGambar" src="" alt="Gambar"
+                                        style="max-width:100%; max-height:300px; border-radius:4px;"></div>
+                            </div>
+                            <div id="skmViewDokumenContainer" style="display:none;">
+                                <strong>Dokumen:</strong>
+                                <div><a id="skmViewDokumenLink" href="#" target="_blank">Buka dokumen</a></div>
+                                <div id="skmViewDokumenFrameContainer" style="margin-top:10px; display:none;">
+                                    <iframe id="skmViewDokumenIframe" src="" style="width:100%; height:400px;"
+                                        frameborder="0"></iframe>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Core JS Files -->
     <script src="{{ asset('js/core/popper.min.js') }}"></script>
@@ -229,13 +298,36 @@
             });
         }
 
-        function editData(id, tanggal, responden, ipk, ikm) {
+        function editData(id, tanggal, responden, ipk, ikm, gambarUrl = '', dokumenUrl = '') {
             document.getElementById('formTitle').textContent = 'Edit Data Survei SKM';
             document.getElementById('dataId').value = id;
             document.getElementById('tanggal').value = tanggal;
             document.getElementById('responden').value = responden;
             document.getElementById('ipk').value = parseFloat(ipk).toFixed(2);
             document.getElementById('ikm').value = parseFloat(ikm).toFixed(2);
+
+            // previews
+            const imgEl = document.getElementById('gambarPreview');
+            const docPreview = document.getElementById('dokumenPreview');
+            const docLink = document.getElementById('dokumenLink');
+
+            if (gambarUrl) {
+                imgEl.src = gambarUrl;
+                imgEl.style.display = 'block';
+            } else {
+                imgEl.src = '';
+                imgEl.style.display = 'none';
+            }
+
+            if (dokumenUrl) {
+                docLink.href = dokumenUrl;
+                docLink.textContent = dokumenUrl.split('/').pop();
+                docPreview.style.display = 'block';
+            } else {
+                docLink.href = '#';
+                docLink.textContent = 'Lihat dokumen';
+                docPreview.style.display = 'none';
+            }
 
             const form = document.getElementById('skmForm');
             form.action = `/laporan-skm/${id}`;
@@ -264,21 +356,110 @@
             document.getElementById('ikm').value = '0.00';
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
+            // Edit button: include media urls
             document.querySelectorAll('.edit-btn').forEach(button => {
-                button.addEventListener('click', function() {
+                button.addEventListener('click', function () {
                     const id = this.dataset.id;
                     const tanggal = this.dataset.tanggal;
                     const responden = this.dataset.responden;
                     const ipk = this.dataset.ipk;
                     const ikm = this.dataset.ikm;
-                    editData(id, tanggal, responden, ipk, ikm);
+                    const gambarUrl = this.dataset.gambarUrl || '';
+                    const dokumenUrl = this.dataset.dokumenUrl || '';
+                    editData(id, tanggal, responden, ipk, ikm, gambarUrl, dokumenUrl);
                 });
             });
 
+            // View button: show modal with details
+            document.querySelectorAll('.view-btn').forEach(button => {
+                button.addEventListener('click', function () {
+                    const d = this.dataset;
+                    document.getElementById('skmViewTanggal').textContent = d.tanggal || '-';
+                    document.getElementById('skmViewResponden').textContent = d.responden || '0';
+                    document.getElementById('skmViewIpk').textContent = (parseFloat(d.ipk) || 0).toFixed(2) + '%';
+                    document.getElementById('skmViewIkm').textContent = (parseFloat(d.ikm) || 0).toFixed(2) + '%';
+
+                    const imgContainer = document.getElementById('skmViewGambarContainer');
+                    const imgEl = document.getElementById('skmViewGambar');
+                    if (d.gambarUrl) {
+                        imgEl.src = d.gambarUrl;
+                        imgContainer.style.display = 'block';
+                    } else {
+                        imgEl.src = '';
+                        imgContainer.style.display = 'none';
+                    }
+
+                    const docContainer = document.getElementById('skmViewDokumenContainer');
+                    const docLink = document.getElementById('skmViewDokumenLink');
+                    const iframeContainer = document.getElementById('skmViewDokumenFrameContainer');
+                    const iframe = document.getElementById('skmViewDokumenIframe');
+                    if (d.dokumenUrl) {
+                        docLink.href = d.dokumenUrl;
+                        docLink.textContent = d.dokumenUrl.split('/').pop();
+                        docContainer.style.display = 'block';
+                        if (d.dokumenUrl.toLowerCase().endsWith('.pdf')) {
+                            iframe.src = d.dokumenUrl;
+                            iframeContainer.style.display = 'block';
+                        } else {
+                            iframe.src = '';
+                            iframeContainer.style.display = 'none';
+                        }
+                    } else {
+                        docLink.href = '#';
+                        docLink.textContent = 'Buka dokumen';
+                        docContainer.style.display = 'none';
+                        iframe.src = '';
+                        iframeContainer.style.display = 'none';
+                    }
+
+                    const bsModal = new bootstrap.Modal(document.getElementById('viewSkmModal'));
+                    bsModal.show();
+                });
+            });
+
+            // Preview handlers for file inputs
+            const gambarInput = document.getElementById('gambar');
+            const dokumenInput = document.getElementById('dokumen');
+
+            if (gambarInput) {
+                gambarInput.addEventListener('change', function () {
+                    const file = this.files[0];
+                    const imgEl = document.getElementById('gambarPreview');
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function (e) {
+                            imgEl.src = e.target.result;
+                            imgEl.style.display = 'block';
+                        }
+                        reader.readAsDataURL(file);
+                    } else {
+                        imgEl.src = '';
+                        imgEl.style.display = 'none';
+                    }
+                });
+            }
+
+            if (dokumenInput) {
+                dokumenInput.addEventListener('change', function () {
+                    const file = this.files[0];
+                    const docPreview = document.getElementById('dokumenPreview');
+                    const docLink = document.getElementById('dokumenLink');
+                    if (file) {
+                        docLink.href = URL.createObjectURL(file);
+                        docLink.textContent = file.name;
+                        docPreview.style.display = 'block';
+                    } else {
+                        docLink.href = '#';
+                        docLink.textContent = 'Lihat dokumen';
+                        docPreview.style.display = 'none';
+                    }
+                });
+            }
+
             // Format desimal otomatis saat blur
             ['ipk', 'ikm'].forEach(id => {
-                document.getElementById(id).addEventListener('blur', function() {
+                document.getElementById(id).addEventListener('blur', function () {
                     let val = parseFloat(this.value);
                     if (isNaN(val)) val = 0;
                     val = Math.max(0, Math.min(100, val));
@@ -287,7 +468,7 @@
             });
 
             // Validasi saat submit
-            document.getElementById('skmForm').addEventListener('submit', function(e) {
+            document.getElementById('skmForm').addEventListener('submit', function (e) {
                 const tanggal = document.getElementById('tanggal').value;
                 const responden = parseInt(document.getElementById('responden').value);
                 const ipk = parseFloat(document.getElementById('ipk').value);

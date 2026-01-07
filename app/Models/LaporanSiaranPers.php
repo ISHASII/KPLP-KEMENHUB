@@ -11,5 +11,17 @@ class LaporanSiaranPers extends Model
     protected $fillable = [
         'jumlah_siaran_pers',
         'tanggal',
+        'gambar',
+        'dokumen',
     ];
+
+    public function getGambarUrlAttribute()
+    {
+        return $this->gambar ? asset('storage/' . $this->gambar) : '';
+    }
+
+    public function getDokumenUrlAttribute()
+    {
+        return $this->dokumen ? asset('storage/' . $this->dokumen) : '';
+    }
 }

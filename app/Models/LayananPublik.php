@@ -17,5 +17,18 @@ class LayananPublik extends Model
         'pengawasan_salvage',
         'marpol',
         'tamu_kantor',
+        'gambar',
+        'dokumen',
     ];
+
+    // Accessors to get public URLs for files
+    public function getGambarUrlAttribute()
+    {
+        return $this->gambar ? asset('storage/' . $this->gambar) : null;
+    }
+
+    public function getDokumenUrlAttribute()
+    {
+        return $this->dokumen ? asset('storage/' . $this->dokumen) : null;
+    }
 }

@@ -15,7 +15,7 @@
                             <h6 id="formTitle">Tambah Data Media Visual</h6>
                         </div>
                         <div class="card-body">
-                            <form id="mediaForm" action="{{ route('media_visual.store') }}" method="POST">
+                            <form id="mediaForm" action="{{ route('media_visual.store') }}" method="POST" enctype="multipart/form-data">
                                 @csrf
                                 <input type="hidden" id="formMethod" name="_method" value="POST">
                                 <input type="hidden" id="dataId" name="id">
@@ -41,6 +41,25 @@
                                             <label for="pengikut" class="form-control-label">Jumlah Pengikut</label>
                                             <input type="number" class="form-control" id="pengikut" name="pengikut"
                                                 min="0" value="0" required>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row mt-3">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="gambar" class="form-control-label">Gambar (opsional)</label>
+                                            <input type="file" class="form-control" id="gambar" name="gambar" accept="image/*">
+                                            <img id="gambarPreview" src="" style="max-height:100px; display:none; margin-top:10px;">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="dokumen" class="form-control-label">Dokumen (opsional)</label>
+                                            <input type="file" class="form-control" id="dokumen" name="dokumen" accept=".pdf,.doc,.docx">
+                                            <div id="dokumenPreview" style="margin-top:10px; display:none;">
+                                                <a href="#" target="_blank" id="dokumenLink">Lihat dokumen</a>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -125,11 +144,22 @@
                                                     </span>
                                                 </td>
                                                 <td class="text-center py-3">
+                                                    <button type="button" class="btn btn-sm btn-primary view-btn me-1"
+                                                        data-id="{{ $item->id }}"
+                                                        data-tanggal="{{ $item->tanggal }}"
+                                                        data-tayangan="{{ $item->tayangan_postingan }}"
+                                                        data-pengikut="{{ $item->pengikut }}"
+                                                        data-gambar-url="{{ $item->gambar ? asset('storage/' . $item->gambar) : '' }}"
+                                                        data-dokumen-url="{{ $item->dokumen ? asset('storage/' . $item->dokumen) : '' }}">
+                                                        Lihat
+                                                    </button>
                                                     <button type="button" class="btn btn-sm btn-info edit-btn me-1"
                                                         data-id="{{ $item->id }}"
                                                         data-tanggal="{{ $item->tanggal }}"
                                                         data-tayangan="{{ $item->tayangan_postingan }}"
-                                                        data-pengikut="{{ $item->pengikut }}">
+                                                        data-pengikut="{{ $item->pengikut }}"
+                                                        data-gambar-url="{{ $item->gambar ? asset('storage/' . $item->gambar) : '' }}"
+                                                        data-dokumen-url="{{ $item->dokumen ? asset('storage/' . $item->dokumen) : '' }}">
                                                         Edit
                                                     </button>
                                                     <form action="{{ route('media_visual.destroy', $item->id) }}"
@@ -179,6 +209,43 @@
     </main>
     <x-sidebar-plugin></x-sidebar-plugin>
 
+    <!-- Modal: View Media Visual -->
+    <div class="modal fade" id="viewMediaModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Detail Media Visual</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <p><strong>Tanggal:</strong> <span id="mediaViewTanggal"></span></p>
+                <p><strong>Tayangan Postingan:</strong> <span id="mediaViewTayangan"></span></p>
+                <p><strong>Jumlah Pengikut:</strong> <span id="mediaViewPengikut"></span></p>
+              </div>
+              <div class="col-md-6">
+                <div id="mediaViewGambarContainer" style="margin-bottom:10px; display:none;">
+                  <strong>Gambar:</strong>
+                  <div><img id="mediaViewGambar" src="" alt="Gambar" style="max-width:100%; max-height:300px; border-radius:4px;"></div>
+                </div>
+                <div id="mediaViewDokumenContainer" style="display:none;">
+                  <strong>Dokumen:</strong>
+                  <div><a id="mediaViewDokumenLink" href="#" target="_blank">Buka dokumen</a></div>
+                  <div id="mediaViewDokumenFrameContainer" style="margin-top:10px; display:none;">
+                    <iframe id="mediaViewDokumenIframe" src="" style="width:100%; height:400px;" frameborder="0"></iframe>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Core JS Files -->
     <script src="{{ asset('js/core/popper.min.js') }}"></script>
     <script src="{{ asset('js/core/bootstrap.min.js') }}"></script>
@@ -219,12 +286,35 @@
             });
         }
 
-        function editData(id, tanggal, tayangan, pengikut) {
+        function editData(id, tanggal, tayangan, pengikut, gambarUrl = '', dokumenUrl = '') {
             document.getElementById('formTitle').textContent = 'Edit Data Media Visual';
             document.getElementById('dataId').value = id;
             document.getElementById('tanggal').value = tanggal;
             document.getElementById('tayangan_postingan').value = tayangan;
             document.getElementById('pengikut').value = pengikut;
+
+            // previews
+            const imgEl = document.getElementById('gambarPreview');
+            const docPreview = document.getElementById('dokumenPreview');
+            const docLink = document.getElementById('dokumenLink');
+
+            if (gambarUrl) {
+                imgEl.src = gambarUrl;
+                imgEl.style.display = 'block';
+            } else {
+                imgEl.src = '';
+                imgEl.style.display = 'none';
+            }
+
+            if (dokumenUrl) {
+                docLink.href = dokumenUrl;
+                docLink.textContent = dokumenUrl.split('/').pop();
+                docPreview.style.display = 'block';
+            } else {
+                docLink.href = '#';
+                docLink.textContent = 'Lihat dokumen';
+                docPreview.style.display = 'none';
+            }
 
             const form = document.getElementById('mediaForm');
             form.action = `/laporan-media-visual/${id}`;
@@ -259,9 +349,95 @@
                     const tanggal = this.dataset.tanggal;
                     const tayangan = this.dataset.tayangan;
                     const pengikut = this.dataset.pengikut;
-                    editData(id, tanggal, tayangan, pengikut);
+                    const gambarUrl = this.dataset.gambarUrl || '';
+                    const dokumenUrl = this.dataset.dokumenUrl || '';
+                    editData(id, tanggal, tayangan, pengikut, gambarUrl, dokumenUrl);
                 });
             });
+
+            document.querySelectorAll('.view-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const d = this.dataset;
+                    document.getElementById('mediaViewTanggal').textContent = d.tanggal || '-';
+                    document.getElementById('mediaViewTayangan').textContent = d.tayangan || '0';
+                    document.getElementById('mediaViewPengikut').textContent = d.pengikut || '0';
+
+                    const imgContainer = document.getElementById('mediaViewGambarContainer');
+                    const imgEl = document.getElementById('mediaViewGambar');
+                    if (d.gambarUrl) {
+                        imgEl.src = d.gambarUrl;
+                        imgContainer.style.display = 'block';
+                    } else {
+                        imgEl.src = '';
+                        imgContainer.style.display = 'none';
+                    }
+
+                    const docContainer = document.getElementById('mediaViewDokumenContainer');
+                    const docLink = document.getElementById('mediaViewDokumenLink');
+                    const iframeContainer = document.getElementById('mediaViewDokumenFrameContainer');
+                    const iframe = document.getElementById('mediaViewDokumenIframe');
+                    if (d.dokumenUrl) {
+                        docLink.href = d.dokumenUrl;
+                        docLink.textContent = d.dokumenUrl.split('/').pop();
+                        docContainer.style.display = 'block';
+                        if (d.dokumenUrl.toLowerCase().endsWith('.pdf')) {
+                            iframe.src = d.dokumenUrl;
+                            iframeContainer.style.display = 'block';
+                        } else {
+                            iframe.src = '';
+                            iframeContainer.style.display = 'none';
+                        }
+                    } else {
+                        docLink.href = '#';
+                        docLink.textContent = 'Buka dokumen';
+                        docContainer.style.display = 'none';
+                        iframe.src = '';
+                        iframeContainer.style.display = 'none';
+                    }
+
+                    const bsModal = new bootstrap.Modal(document.getElementById('viewMediaModal'));
+                    bsModal.show();
+                });
+            });
+
+            // Preview handlers for file inputs
+            const gambarInput = document.getElementById('gambar');
+            const dokumenInput = document.getElementById('dokumen');
+
+            if (gambarInput) {
+                gambarInput.addEventListener('change', function() {
+                    const file = this.files[0];
+                    const imgEl = document.getElementById('gambarPreview');
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            imgEl.src = e.target.result;
+                            imgEl.style.display = 'block';
+                        }
+                        reader.readAsDataURL(file);
+                    } else {
+                        imgEl.src = '';
+                        imgEl.style.display = 'none';
+                    }
+                });
+            }
+
+            if (dokumenInput) {
+                dokumenInput.addEventListener('change', function() {
+                    const file = this.files[0];
+                    const docPreview = document.getElementById('dokumenPreview');
+                    const docLink = document.getElementById('dokumenLink');
+                    if (file) {
+                        docLink.href = URL.createObjectURL(file);
+                        docLink.textContent = file.name;
+                        docPreview.style.display = 'block';
+                    } else {
+                        docLink.href = '#';
+                        docLink.textContent = 'Lihat dokumen';
+                        docPreview.style.display = 'none';
+                    }
+                });
+            }
 
             ['tayangan_postingan', 'pengikut'].forEach(id => {
                 document.getElementById(id).addEventListener('blur', function() {

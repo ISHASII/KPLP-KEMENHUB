@@ -16,7 +16,8 @@
                             <h6 id="formTitle">Tambah Data Berita KPLP</h6>
                         </div>
                         <div class="card-body">
-                            <form id="kplpForm" method="POST" action="{{ route('berita_kplp.store') }}">
+                            <form id="kplpForm" method="POST" action="{{ route('berita_kplp.store') }}"
+                                enctype="multipart/form-data">
                                 @csrf
                                 <input type="hidden" id="formMethod" name="_method" value="POST">
                                 <input type="hidden" id="dataId" name="id">
@@ -25,8 +26,8 @@
                                     <div class="col-md-3">
                                         <div class="form-group">
                                             <label for="tanggal" class="form-control-label">Tanggal</label>
-                                            <input type="date" class="form-control" id="tanggal" name="tanggal"
-                                                required value="{{ date('Y-m-d') }}">
+                                            <input type="date" class="form-control" id="tanggal" name="tanggal" required
+                                                value="{{ date('Y-m-d') }}">
                                         </div>
                                     </div>
                                     <div class="col-md-3">
@@ -50,6 +51,28 @@
                                             <label class="form-control-label">Total Berita</label>
                                             <div class="form-control bg-gray-100 text-center">
                                                 <span id="totalBerita" class="font-weight-bold text-lg">0</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row mt-3">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="gambar" class="form-control-label">Gambar (opsional)</label>
+                                            <input type="file" class="form-control" id="gambar" name="gambar"
+                                                accept="image/*">
+                                            <img id="gambarPreview" src=""
+                                                style="max-height:100px; display:none; margin-top:10px;">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="dokumen" class="form-control-label">Dokumen (opsional)</label>
+                                            <input type="file" class="form-control" id="dokumen" name="dokumen"
+                                                accept=".pdf,.doc,.docx">
+                                            <div id="dokumenPreview" style="margin-top:10px; display:none;">
+                                                <a href="#" target="_blank" id="dokumenLink">Lihat dokumen</a>
                                             </div>
                                         </div>
                                     </div>
@@ -147,11 +170,20 @@
                                                     </span>
                                                 </td>
                                                 <td class="text-center py-3">
-                                                    <button type="button" class="btn btn-sm btn-info edit-btn me-1"
-                                                        data-id="{{ $item->id }}"
-                                                        data-tanggal="{{ $item->tanggal }}"
+                                                    <button type="button" class="btn btn-sm btn-primary view-btn me-1"
+                                                        data-id="{{ $item->id }}" data-tanggal="{{ $item->tanggal }}"
                                                         data-positif="{{ $item->jumlah_berita_positif }}"
-                                                        data-negatif="{{ $item->jumlah_berita_negatif }}">
+                                                        data-negatif="{{ $item->jumlah_berita_negatif }}"
+                                                        data-gambar-url="{{ $item->gambar ? asset('storage/' . $item->gambar) : '' }}"
+                                                        data-dokumen-url="{{ $item->dokumen ? asset('storage/' . $item->dokumen) : '' }}">
+                                                        Lihat
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm btn-info edit-btn me-1"
+                                                        data-id="{{ $item->id }}" data-tanggal="{{ $item->tanggal }}"
+                                                        data-positif="{{ $item->jumlah_berita_positif }}"
+                                                        data-negatif="{{ $item->jumlah_berita_negatif }}"
+                                                        data-gambar-url="{{ $item->gambar ? asset('storage/' . $item->gambar) : '' }}"
+                                                        data-dokumen-url="{{ $item->dokumen ? asset('storage/' . $item->dokumen) : '' }}">
                                                         Edit
                                                     </button>
 
@@ -186,6 +218,46 @@
         </div>
     </main>
     <x-sidebar-plugin></x-sidebar-plugin>
+
+    <!-- Modal: View Berita KPLP -->
+    <div class="modal fade" id="viewBeritaModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detail Berita KPLP</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <p><strong>Tanggal:</strong> <span id="beritaViewTanggal"></span></p>
+                            <p><strong>Berita Positif:</strong> <span id="beritaViewPositif"></span></p>
+                            <p><strong>Berita Negatif:</strong> <span id="beritaViewNegatif"></span></p>
+                            <p><strong>Total:</strong> <span id="beritaViewTotal"></span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <div id="beritaViewGambarContainer" style="margin-bottom:10px; display:none;">
+                                <strong>Gambar:</strong>
+                                <div><img id="beritaViewGambar" src="" alt="Gambar"
+                                        style="max-width:100%; max-height:300px; border-radius:4px;"></div>
+                            </div>
+                            <div id="beritaViewDokumenContainer" style="display:none;">
+                                <strong>Dokumen:</strong>
+                                <div><a id="beritaViewDokumenLink" href="#" target="_blank">Buka dokumen</a></div>
+                                <div id="beritaViewDokumenFrameContainer" style="margin-top:10px; display:none;">
+                                    <iframe id="beritaViewDokumenIframe" src="" style="width:100%; height:400px;"
+                                        frameborder="0"></iframe>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Core JS Files -->
     <script src="{{ asset('js/core/popper.min.js') }}"></script>
@@ -235,12 +307,35 @@
             document.getElementById('totalBerita').textContent = total.toLocaleString('id-ID');
         }
 
-        function editData(id, tanggal, positif, negatif) {
+        function editData(id, tanggal, positif, negatif, gambarUrl = '', dokumenUrl = '') {
             document.getElementById('formTitle').textContent = 'Edit Data Berita KPLP';
             document.getElementById('dataId').value = id;
             document.getElementById('tanggal').value = tanggal;
             document.getElementById('jumlah_berita_positif').value = positif;
             document.getElementById('jumlah_berita_negatif').value = negatif;
+
+            // previews
+            const imgEl = document.getElementById('gambarPreview');
+            const docPreview = document.getElementById('dokumenPreview');
+            const docLink = document.getElementById('dokumenLink');
+
+            if (gambarUrl) {
+                imgEl.src = gambarUrl;
+                imgEl.style.display = 'block';
+            } else {
+                imgEl.src = '';
+                imgEl.style.display = 'none';
+            }
+
+            if (dokumenUrl) {
+                docLink.href = dokumenUrl;
+                docLink.textContent = dokumenUrl.split('/').pop();
+                docPreview.style.display = 'block';
+            } else {
+                docLink.href = '#';
+                docLink.textContent = 'Lihat dokumen';
+                docPreview.style.display = 'none';
+            }
 
             calculateTotal();
 
@@ -271,31 +366,119 @@
             calculateTotal();
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             calculateTotal();
 
             document.querySelectorAll('.edit-btn').forEach(button => {
-                button.addEventListener('click', function() {
+                button.addEventListener('click', function () {
                     const id = this.dataset.id;
                     const tanggal = this.dataset.tanggal;
                     const positif = this.dataset.positif;
                     const negatif = this.dataset.negatif;
-                    editData(id, tanggal, positif, negatif);
+                    const gambarUrl = this.dataset.gambarUrl || '';
+                    const dokumenUrl = this.dataset.dokumenUrl || '';
+                    editData(id, tanggal, positif, negatif, gambarUrl, dokumenUrl);
                 });
             });
+
+            document.querySelectorAll('.view-btn').forEach(button => {
+                button.addEventListener('click', function () {
+                    const d = this.dataset;
+                    document.getElementById('beritaViewTanggal').textContent = d.tanggal || '-';
+                    document.getElementById('beritaViewPositif').textContent = d.positif || '0';
+                    document.getElementById('beritaViewNegatif').textContent = d.negatif || '0';
+                    const total = (parseInt(d.positif) || 0) + (parseInt(d.negatif) || 0);
+                    document.getElementById('beritaViewTotal').textContent = total.toLocaleString('id-ID');
+
+                    const imgContainer = document.getElementById('beritaViewGambarContainer');
+                    const imgEl = document.getElementById('beritaViewGambar');
+                    if (d.gambarUrl) {
+                        imgEl.src = d.gambarUrl;
+                        imgContainer.style.display = 'block';
+                    } else {
+                        imgEl.src = '';
+                        imgContainer.style.display = 'none';
+                    }
+
+                    const docContainer = document.getElementById('beritaViewDokumenContainer');
+                    const docLink = document.getElementById('beritaViewDokumenLink');
+                    const iframeContainer = document.getElementById('beritaViewDokumenFrameContainer');
+                    const iframe = document.getElementById('beritaViewDokumenIframe');
+                    if (d.dokumenUrl) {
+                        docLink.href = d.dokumenUrl;
+                        docLink.textContent = d.dokumenUrl.split('/').pop();
+                        docContainer.style.display = 'block';
+                        if (d.dokumenUrl.toLowerCase().endsWith('.pdf')) {
+                            iframe.src = d.dokumenUrl;
+                            iframeContainer.style.display = 'block';
+                        } else {
+                            iframe.src = '';
+                            iframeContainer.style.display = 'none';
+                        }
+                    } else {
+                        docLink.href = '#';
+                        docLink.textContent = 'Buka dokumen';
+                        docContainer.style.display = 'none';
+                        iframe.src = '';
+                        iframeContainer.style.display = 'none';
+                    }
+
+                    const bsModal = new bootstrap.Modal(document.getElementById('viewBeritaModal'));
+                    bsModal.show();
+                });
+            });
+
+            // Preview handlers for file inputs
+            const gambarInput = document.getElementById('gambar');
+            const dokumenInput = document.getElementById('dokumen');
+
+            if (gambarInput) {
+                gambarInput.addEventListener('change', function () {
+                    const file = this.files[0];
+                    const imgEl = document.getElementById('gambarPreview');
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function (e) {
+                            imgEl.src = e.target.result;
+                            imgEl.style.display = 'block';
+                        }
+                        reader.readAsDataURL(file);
+                    } else {
+                        imgEl.src = '';
+                        imgEl.style.display = 'none';
+                    }
+                });
+            }
+
+            if (dokumenInput) {
+                dokumenInput.addEventListener('change', function () {
+                    const file = this.files[0];
+                    const docPreview = document.getElementById('dokumenPreview');
+                    const docLink = document.getElementById('dokumenLink');
+                    if (file) {
+                        docLink.href = URL.createObjectURL(file);
+                        docLink.textContent = file.name;
+                        docPreview.style.display = 'block';
+                    } else {
+                        docLink.href = '#';
+                        docLink.textContent = 'Lihat dokumen';
+                        docPreview.style.display = 'none';
+                    }
+                });
+            }
 
             document.getElementById('jumlah_berita_positif').addEventListener('input', calculateTotal);
             document.getElementById('jumlah_berita_negatif').addEventListener('input', calculateTotal);
 
             ['jumlah_berita_positif', 'jumlah_berita_negatif'].forEach(id => {
-                document.getElementById(id).addEventListener('blur', function() {
+                document.getElementById(id).addEventListener('blur', function () {
                     let val = parseInt(this.value);
                     this.value = (isNaN(val) || val < 0) ? 0 : val;
                     calculateTotal();
                 });
             });
 
-            document.getElementById('kplpForm').addEventListener('submit', function(e) {
+            document.getElementById('kplpForm').addEventListener('submit', function (e) {
                 const tanggal = document.getElementById('tanggal').value;
                 if (!tanggal) {
                     e.preventDefault();

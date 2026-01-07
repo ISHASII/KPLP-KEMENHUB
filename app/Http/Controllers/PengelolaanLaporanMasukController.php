@@ -22,9 +22,24 @@ class PengelolaanLaporanMasukController extends Controller
             'terdisposisi_sedang_proses' => 'required|integer|min:0',
             'terdisposisi_selesai' => 'required|integer|min:0',
             'tertunda' => 'required|integer|min:0',
+            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
+            'dokumen' => 'nullable|mimes:pdf,doc,docx|max:5120',
         ]);
 
-        PengelolaanLaporanMasuk::create($validated);
+        $payload = $request->only([
+            'tanggal', 'belum_terverifikasi', 'terdisposisi_belum_tindak_lanjut',
+            'terdisposisi_sedang_proses', 'terdisposisi_selesai', 'tertunda'
+        ]);
+
+        if ($request->hasFile('gambar')) {
+            $payload['gambar'] = $request->file('gambar')->store('pengelolaan_laporan_masuk', 'public');
+        }
+
+        if ($request->hasFile('dokumen')) {
+            $payload['dokumen'] = $request->file('dokumen')->store('pengelolaan_laporan_masuk', 'public');
+        }
+
+        PengelolaanLaporanMasuk::create($payload);
 
         return back()->with('success', 'Data berhasil ditambahkan.');
     }
@@ -38,16 +53,48 @@ class PengelolaanLaporanMasukController extends Controller
             'terdisposisi_sedang_proses' => 'required|integer|min:0',
             'terdisposisi_selesai' => 'required|integer|min:0',
             'tertunda' => 'required|integer|min:0',
+            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
+            'dokumen' => 'nullable|mimes:pdf,doc,docx|max:5120',
         ]);
 
-        PengelolaanLaporanMasuk::findOrFail($id)->update($validated);
+        $data = PengelolaanLaporanMasuk::findOrFail($id);
+
+        $payload = $request->only([
+            'tanggal', 'belum_terverifikasi', 'terdisposisi_belum_tindak_lanjut',
+            'terdisposisi_sedang_proses', 'terdisposisi_selesai', 'tertunda'
+        ]);
+
+        if ($request->hasFile('gambar')) {
+            if ($data->gambar && \Illuminate\Support\Facades\Storage::disk('public')->exists($data->gambar)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($data->gambar);
+            }
+            $payload['gambar'] = $request->file('gambar')->store('pengelolaan_laporan_masuk', 'public');
+        }
+
+        if ($request->hasFile('dokumen')) {
+            if ($data->dokumen && \Illuminate\Support\Facades\Storage::disk('public')->exists($data->dokumen)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($data->dokumen);
+            }
+            $payload['dokumen'] = $request->file('dokumen')->store('pengelolaan_laporan_masuk', 'public');
+        }
+
+        $data->update($payload);
 
         return back()->with('success', 'Data berhasil diperbarui.');
     }
 
     public function destroy($id)
     {
-        PengelolaanLaporanMasuk::findOrFail($id)->delete();
+        $data = PengelolaanLaporanMasuk::findOrFail($id);
+
+        if ($data->gambar && \Illuminate\Support\Facades\Storage::disk('public')->exists($data->gambar)) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($data->gambar);
+        }
+        if ($data->dokumen && \Illuminate\Support\Facades\Storage::disk('public')->exists($data->dokumen)) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($data->dokumen);
+        }
+
+        $data->delete();
 
         return back()->with('success', 'Data berhasil dihapus.');
     }

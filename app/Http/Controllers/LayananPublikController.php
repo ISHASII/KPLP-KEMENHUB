@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\LayananPublik;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class LayananPublikController extends Controller
 {
@@ -25,7 +26,19 @@ class LayananPublikController extends Controller
             'pengawasan_salvage' => 'nullable|integer|min:0',
             'marpol' => 'nullable|integer|min:0',
             'tamu_kantor' => 'nullable|integer|min:0',
+            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'dokumen' => 'nullable|mimes:pdf,doc,docx,zip|max:5120',
         ]);
+
+        $gambarPath = null;
+        if ($request->hasFile('gambar')) {
+            $gambarPath = $request->file('gambar')->store('layanan_publik', 'public');
+        }
+
+        $dokumenPath = null;
+        if ($request->hasFile('dokumen')) {
+            $dokumenPath = $request->file('dokumen')->store('layanan_publik', 'public');
+        }
 
         LayananPublik::create([
             'tanggal' => $request->tanggal,
@@ -36,6 +49,8 @@ class LayananPublikController extends Controller
             'pengawasan_salvage' => $request->pengawasan_salvage ?: 0,
             'marpol' => $request->marpol ?: 0,
             'tamu_kantor' => $request->tamu_kantor ?: 0,
+            'gambar' => $gambarPath,
+            'dokumen' => $dokumenPath,
         ]);
 
         return redirect()->back()->with('success', 'Data Layanan Publik berhasil ditambahkan!');
@@ -58,10 +73,13 @@ class LayananPublikController extends Controller
             'pengawasan_salvage' => 'nullable|integer|min:0',
             'marpol' => 'nullable|integer|min:0',
             'tamu_kantor' => 'nullable|integer|min:0',
+            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'dokumen' => 'nullable|mimes:pdf,doc,docx,zip|max:5120',
         ]);
 
         $layanan = LayananPublik::findOrFail($id);
-        $layanan->update($request->only([
+
+        $updateData = $request->only([
             'tanggal',
             'penyidikan_penyelidikan',
             'patroli_kapal',
@@ -70,14 +88,40 @@ class LayananPublikController extends Controller
             'pengawasan_salvage',
             'marpol',
             'tamu_kantor'
-        ]));
+        ]);
+
+        if ($request->hasFile('gambar')) {
+            if ($layanan->gambar) {
+                Storage::disk('public')->delete($layanan->gambar);
+            }
+            $updateData['gambar'] = $request->file('gambar')->store('layanan_publik', 'public');
+        }
+
+        if ($request->hasFile('dokumen')) {
+            if ($layanan->dokumen) {
+                Storage::disk('public')->delete($layanan->dokumen);
+            }
+            $updateData['dokumen'] = $request->file('dokumen')->store('layanan_publik', 'public');
+        }
+
+        $layanan->update($updateData);
 
         return redirect('/layanan-publik')->with('success', 'Data berhasil diperbarui!');
     }
 
     public function destroy($id)
     {
-        LayananPublik::findOrFail($id)->delete();
+        $layanan = LayananPublik::findOrFail($id);
+
+        if ($layanan->gambar) {
+            Storage::disk('public')->delete($layanan->gambar);
+        }
+        if ($layanan->dokumen) {
+            Storage::disk('public')->delete($layanan->dokumen);
+        }
+
+        $layanan->delete();
+
         return redirect()->back()->with('success', 'Data berhasil dihapus!');
     }
 }

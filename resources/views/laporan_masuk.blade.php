@@ -16,7 +16,7 @@
                             <h6 id="formTitle">Tambah Data Pengelolaan Laporan Masuk</h6>
                         </div>
                         <div class="card-body">
-                            <form id="masukForm" method="POST" action="{{ route('laporan_masuk.store') }}">
+                            <form id="masukForm" method="POST" action="{{ route('laporan_masuk.store') }}" enctype="multipart/form-data">
                                 @csrf
                                 <input type="hidden" id="formMethod" name="_method" value="POST">
                                 <input type="hidden" id="dataId" name="id">
@@ -71,6 +71,26 @@
                                         </div>
                                     </div>
                                 </div>
+
+                                <div class="row mt-3">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="gambar" class="form-control-label">Gambar (opsional)</label>
+                                            <input type="file" class="form-control" id="gambar" name="gambar" accept="image/*">
+                                            <img id="gambarPreview" src="" style="max-height:100px; display:none; margin-top:10px;">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="dokumen" class="form-control-label">Dokumen (opsional)</label>
+                                            <input type="file" class="form-control" id="dokumen" name="dokumen" accept=".pdf,.doc,.docx">
+                                            <div id="dokumenPreview" style="margin-top:10px; display:none;">
+                                                <a href="#" target="_blank" id="dokumenLink">Lihat dokumen</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div class="row mt-4">
                                     <div class="col-md-12">
                                         <button type="submit" class="btn bg-gradient-primary" id="submitButton">Simpan
@@ -172,6 +192,20 @@
                                                 </td>
                                                 <td>
                                                     <button type="button"
+                                                        class="btn btn-sm btn-primary view-btn me-1"
+                                                        data-id="{{ $item->id }}"
+                                                        data-tanggal="{{ $item->tanggal }}"
+                                                        data-belum="{{ $item->belum_terverifikasi }}"
+                                                        data-blumtl="{{ $item->terdisposisi_belum_tindak_lanjut }}"
+                                                        data-proses="{{ $item->terdisposisi_sedang_proses }}"
+                                                        data-selesai="{{ $item->terdisposisi_selesai }}"
+                                                        data-tunda="{{ $item->tertunda }}"
+                                                        data-gambar-url="{{ $item->gambar ? asset('storage/' . $item->gambar) : '' }}"
+                                                        data-dokumen-url="{{ $item->dokumen ? asset('storage/' . $item->dokumen) : '' }}">
+                                                        Lihat
+                                                    </button>
+
+                                                    <button type="button"
                                                         class="btn btn-sm bg-gradient-info edit-btn me-1"
                                                         data-id="{{ $item->id }}"
                                                         data-tanggal="{{ $item->tanggal }}"
@@ -179,15 +213,16 @@
                                                         data-blumtl="{{ $item->terdisposisi_belum_tindak_lanjut }}"
                                                         data-proses="{{ $item->terdisposisi_sedang_proses }}"
                                                         data-selesai="{{ $item->terdisposisi_selesai }}"
-                                                        data-tunda="{{ $item->tertunda }}">
+                                                        data-tunda="{{ $item->tertunda }}"
+                                                        data-gambar-url="{{ $item->gambar ? asset('storage/' . $item->gambar) : '' }}"
+                                                        data-dokumen-url="{{ $item->dokumen ? asset('storage/' . $item->dokumen) : '' }}">
                                                         Edit
                                                     </button>
-                                                    <form action="{{ route('laporan_masuk.destroy', $item->id) }}"
-                                                        method="POST" class="d-inline">
+
+                                                    <form action="{{ route('laporan_masuk.destroy', $item->id) }}" method="POST" class="d-inline">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" class="btn btn-sm bg-gradient-danger"
-                                                            onclick="return confirm('Yakin hapus data ini?')">
+                                                        <button type="submit" class="btn btn-sm bg-gradient-danger" onclick="return confirm('Yakin hapus data ini?')">
                                                             Hapus
                                                         </button>
                                                     </form>
@@ -212,6 +247,46 @@
         </div>
     </main>
     <x-sidebar-plugin></x-sidebar-plugin>
+
+    <!-- Modal: View Pengelolaan Laporan Masuk -->
+    <div class="modal fade" id="viewMasukModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Detail Pengelolaan Laporan Masuk</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <p><strong>Tanggal:</strong> <span id="masukViewTanggal"></span></p>
+                <p><strong>Belum Terverifikasi:</strong> <span id="masukViewBelum"></span></p>
+                <p><strong>Belum TL:</strong> <span id="masukViewBelumTL"></span></p>
+                <p><strong>Proses:</strong> <span id="masukViewProses"></span></p>
+                <p><strong>Selesai:</strong> <span id="masukViewSelesai"></span></p>
+                <p><strong>Tertunda:</strong> <span id="masukViewTunda"></span></p>
+              </div>
+              <div class="col-md-6">
+                <div id="masukViewGambarContainer" style="margin-bottom:10px; display:none;">
+                  <strong>Gambar:</strong>
+                  <div><img id="masukViewGambar" src="" alt="Gambar" style="max-width:100%; max-height:300px; border-radius:4px;"></div>
+                </div>
+                <div id="masukViewDokumenContainer" style="display:none;">
+                  <strong>Dokumen:</strong>
+                  <div><a id="masukViewDokumenLink" href="#" target="_blank">Buka dokumen</a></div>
+                  <div id="masukViewDokumenFrameContainer" style="margin-top:10px; display:none;">
+                    <iframe id="masukViewDokumenIframe" src="" style="width:100%; height:400px;" frameborder="0"></iframe>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- Script tetap sama, hanya tambahan kecil -->
     <script src="{{ asset('js/core/popper.min.js') }}"></script>
@@ -267,10 +342,99 @@
                         this.dataset.blumtl,
                         this.dataset.proses,
                         this.dataset.selesai,
-                        this.dataset.tunda
+                        this.dataset.tunda,
+                        this.dataset.gambarUrl || '',
+                        this.dataset.dokumenUrl || ''
                     );
                 });
             });
+
+            document.querySelectorAll('.view-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const d = this.dataset;
+                    document.getElementById('masukViewTanggal').textContent = d.tanggal || '-';
+                    document.getElementById('masukViewBelum').textContent = d.belum || '0';
+                    document.getElementById('masukViewBelumTL').textContent = d.blumtl || '0';
+                    document.getElementById('masukViewProses').textContent = d.proses || '0';
+                    document.getElementById('masukViewSelesai').textContent = d.selesai || '0';
+                    document.getElementById('masukViewTunda').textContent = d.tunda || '0';
+
+                    const imgContainer = document.getElementById('masukViewGambarContainer');
+                    const imgEl = document.getElementById('masukViewGambar');
+                    if (d.gambarUrl) {
+                        imgEl.src = d.gambarUrl;
+                        imgContainer.style.display = 'block';
+                    } else {
+                        imgEl.src = '';
+                        imgContainer.style.display = 'none';
+                    }
+
+                    const docContainer = document.getElementById('masukViewDokumenContainer');
+                    const docLink = document.getElementById('masukViewDokumenLink');
+                    const iframeContainer = document.getElementById('masukViewDokumenFrameContainer');
+                    const iframe = document.getElementById('masukViewDokumenIframe');
+                    if (d.dokumenUrl) {
+                        docLink.href = d.dokumenUrl;
+                        docLink.textContent = d.dokumenUrl.split('/').pop();
+                        docContainer.style.display = 'block';
+                        if (d.dokumenUrl.toLowerCase().endsWith('.pdf')) {
+                            iframe.src = d.dokumenUrl;
+                            iframeContainer.style.display = 'block';
+                        } else {
+                            iframe.src = '';
+                            iframeContainer.style.display = 'none';
+                        }
+                    } else {
+                        docLink.href = '#';
+                        docLink.textContent = 'Buka dokumen';
+                        docContainer.style.display = 'none';
+                        iframe.src = '';
+                        iframeContainer.style.display = 'none';
+                    }
+
+                    const bsModal = new bootstrap.Modal(document.getElementById('viewMasukModal'));
+                    bsModal.show();
+                });
+            });
+
+            // Preview handlers for file inputs
+            const gambarInput = document.getElementById('gambar');
+            const dokumenInput = document.getElementById('dokumen');
+
+            if (gambarInput) {
+                gambarInput.addEventListener('change', function() {
+                    const file = this.files[0];
+                    const imgEl = document.getElementById('gambarPreview');
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            imgEl.src = e.target.result;
+                            imgEl.style.display = 'block';
+                        }
+                        reader.readAsDataURL(file);
+                    } else {
+                        imgEl.src = '';
+                        imgEl.style.display = 'none';
+                    }
+                });
+            }
+
+            if (dokumenInput) {
+                dokumenInput.addEventListener('change', function() {
+                    const file = this.files[0];
+                    const docPreview = document.getElementById('dokumenPreview');
+                    const docLink = document.getElementById('dokumenLink');
+                    if (file) {
+                        docLink.href = URL.createObjectURL(file);
+                        docLink.textContent = file.name;
+                        docPreview.style.display = 'block';
+                    } else {
+                        docLink.href = '#';
+                        docLink.textContent = 'Lihat dokumen';
+                        docPreview.style.display = 'none';
+                    }
+                });
+            }
         });
     </script>
     <script src="{{ asset('js/soft-ui-dashboard.min.js?v=1.0.3') }}"></script>
