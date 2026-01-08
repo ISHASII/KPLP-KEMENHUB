@@ -784,7 +784,6 @@
             if (serverCaptcha) {
                 renderCaptcha(serverCaptcha);
             } else {
-                // fallback: fetch new captcha
                 document.getElementById('refreshCaptcha').click();
             }
         });
