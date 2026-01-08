@@ -16,7 +16,7 @@
                 Dashboard
             </x-navlink>
 
-            @if(auth()->check() && auth()->user()->isAdmin())
+            @if(auth()->check())
             <x-navlink href="{{ url('/layanan-publik') }}" :active="request()->is('layanan-publik*')" icon="fa-globe">
                 Layanan Publik
             </x-navlink>
@@ -49,6 +49,7 @@
                 Laporan Masuk
             </x-navlink>
 
+            @if(auth()->check() && auth()->user()->isAdmin())
             <li class="nav-item mt-3">
                 <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">Account pages</h6>
             </li>
@@ -56,6 +57,7 @@
             <x-navlink href="{{ route('users.index') }}" :active="request()->routeIs('users.*')" icon="fa-users-gear">
                 Kelola Akun
             </x-navlink>
+            @endif
             @endif
         </ul>
     </div>

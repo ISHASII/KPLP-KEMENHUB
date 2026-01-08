@@ -291,9 +291,9 @@ class MainController extends Controller
             return redirect()->intended(route('dashboard'));
         }
 
-        // Kalau masih gagal, tampilkan pesan debug (hapus nanti)
+        // Kalau masih gagal, tampilkan pesan sederhana
         return back()->withErrors([
-            'username' => 'Username atau password salah! (debug: coba lagi atau clear cache)'
+            'username' => 'Username atau password salah!'
         ])->withInput();
     }
 

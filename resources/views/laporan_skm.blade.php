@@ -11,93 +11,95 @@
             <!-- Form Input Data -->
             <div class="row">
                 <div class="col-12">
-                    <div class="card mb-4">
-                        <div class="card-header pb-0">
-                            <h6 id="formTitle">Tambah Data Survei Kepuasan Masyarakat (SKM)</h6>
+                    @if(auth()->check() && auth()->user()->isAdmin())
+                                <div class="card mb-4">
+                                    <div class="card-header pb-0">
+                                        <h6 id="formTitle">Tambah Data Survei Kepuasan Masyarakat (SKM)</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <form id="skmForm" action="{{ route('skm.store') }}" method="POST"
+                                            enctype="multipart/form-data">
+                                            @csrf
+                                            <input type="hidden" id="formMethod" name="_method" value="POST">
+                                            <input type="hidden" id="dataId" name="id">
+
+                                            <div class="row">
+                                                <div class="col-md-3">
+                                                    <div class="form-group">
+                                                        <label for="tanggal" class="form-control-label">Tanggal Survei</label>
+                                                        <input type="date" class="form-control" id="tanggal" name="tanggal" required
+                                                            value="{{ date('Y-m-d') }}">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <div class="form-group">
+                                                        <label for="responden" class="form-control-label">Jumlah Responden</label>
+                                                        <input type="number" class="form-control" id="responden" name="responden"
+                                                            min="0" value="0" required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <div class="form-group">
+                                                        <label for="ipk" class="form-control-label">IPK (Indeks
+                                                            Kepuasan)</label>
+                                                        <div class="input-group">
+                                                            <input type="number" step="0.01" class="form-control" id="ipk"
+                                                                name="ipk" min="0" max="100" value="0.00" required>
+                                                            <span class="input-group-text">%</span>
+                                                        </div>
+                                                        <small class="text-muted">Contoh: 85.50</small>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <div class="form-group">
+                                                        <label for="ikm" class="form-control-label">IKM (Indeks
+                                                            Kualitas)</label>
+                                                        <div class="input-group">
+                                                            <input type="number" step="0.01" class="form-control" id="ikm"
+                                                                name="ikm" min="0" max="100" value="0.00" required>
+                                                            <span class="input-group-text">%</span>
+                                                        </div>
+                                                        <small class="text-muted">Contoh: 87.25</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row mt-3">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label for="gambar" class="form-control-label">Gambar (opsional)</label>
+                                                        <input type="file" class="form-control" id="gambar" name="gambar"
+                                                            accept="image/*">
+                                                        <img id="gambarPreview" src=""
+                                                            style="max-height:100px; display:none; margin-top:10px;">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label for="dokumen" class="form-control-label">Dokumen (opsional)</label>
+                                                        <input type="file" class="form-control" id="dokumen" name="dokumen"
+                                                            accept=".pdf,.doc,.docx">
+                                                        <div id="dokumenPreview" style="margin-top:10px; display:none;">
+                                                            <a href="#" target="_blank" id="dokumenLink">Lihat dokumen</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row mt-4">
+                                                <div class="col-md-12">
+                                                    <button type="submit" class="btn bg-gradient-primary" id="submitButton">Simpan
+                                                        Data</button>
+                                                    <button type="button" class="btn bg-gradient-secondary" id="cancelButton"
+                                                        style="display: none;" onclick="resetForm()">Batal Edit</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="card-body">
-                            <form id="skmForm" action="{{ route('skm.store') }}" method="POST"
-                                enctype="multipart/form-data">
-                                @csrf
-                                <input type="hidden" id="formMethod" name="_method" value="POST">
-                                <input type="hidden" id="dataId" name="id">
-
-                                <div class="row">
-                                    <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label for="tanggal" class="form-control-label">Tanggal Survei</label>
-                                            <input type="date" class="form-control" id="tanggal" name="tanggal" required
-                                                value="{{ date('Y-m-d') }}">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label for="responden" class="form-control-label">Jumlah Responden</label>
-                                            <input type="number" class="form-control" id="responden" name="responden"
-                                                min="0" value="0" required>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label for="ipk" class="form-control-label">IPK (Indeks
-                                                Kepuasan)</label>
-                                            <div class="input-group">
-                                                <input type="number" step="0.01" class="form-control" id="ipk"
-                                                    name="ipk" min="0" max="100" value="0.00" required>
-                                                <span class="input-group-text">%</span>
-                                            </div>
-                                            <small class="text-muted">Contoh: 85.50</small>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label for="ikm" class="form-control-label">IKM (Indeks
-                                                Kualitas)</label>
-                                            <div class="input-group">
-                                                <input type="number" step="0.01" class="form-control" id="ikm"
-                                                    name="ikm" min="0" max="100" value="0.00" required>
-                                                <span class="input-group-text">%</span>
-                                            </div>
-                                            <small class="text-muted">Contoh: 87.25</small>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="row mt-3">
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="gambar" class="form-control-label">Gambar (opsional)</label>
-                                            <input type="file" class="form-control" id="gambar" name="gambar"
-                                                accept="image/*">
-                                            <img id="gambarPreview" src=""
-                                                style="max-height:100px; display:none; margin-top:10px;">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="dokumen" class="form-control-label">Dokumen (opsional)</label>
-                                            <input type="file" class="form-control" id="dokumen" name="dokumen"
-                                                accept=".pdf,.doc,.docx">
-                                            <div id="dokumenPreview" style="margin-top:10px; display:none;">
-                                                <a href="#" target="_blank" id="dokumenLink">Lihat dokumen</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="row mt-4">
-                                    <div class="col-md-12">
-                                        <button type="submit" class="btn bg-gradient-primary" id="submitButton">Simpan
-                                            Data</button>
-                                        <button type="button" class="btn bg-gradient-secondary" id="cancelButton"
-                                            style="display: none;" onclick="resetForm()">Batal Edit</button>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                    @endif
 
             <!-- Tabel Data (sudah rapi & seimbang) -->
             <div class="row">
@@ -182,23 +184,25 @@
                                                         data-dokumen-url="{{ $item->dokumen ? asset('storage/' . $item->dokumen) : '' }}">
                                                         Lihat
                                                     </button>
-                                                    <button type="button" class="btn btn-sm btn-info edit-btn me-1"
-                                                        data-id="{{ $item->id }}" data-tanggal="{{ $item->tanggal }}"
-                                                        data-responden="{{ $item->responden }}" data-ipk="{{ $item->ipk }}"
-                                                        data-ikm="{{ $item->ikm }}"
-                                                        data-gambar-url="{{ $item->gambar ? asset('storage/' . $item->gambar) : '' }}"
-                                                        data-dokumen-url="{{ $item->dokumen ? asset('storage/' . $item->dokumen) : '' }}">
-                                                        Edit
-                                                    </button>
-                                                    <form action="{{ route('skm.destroy', $item->id) }}" method="POST"
-                                                        class="d-inline">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="btn btn-sm btn-danger"
-                                                            onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?')">
-                                                            Hapus
+                                                    @if(auth()->check() && auth()->user()->isAdmin())
+                                                        <button type="button" class="btn btn-sm btn-info edit-btn me-1"
+                                                            data-id="{{ $item->id }}" data-tanggal="{{ $item->tanggal }}"
+                                                            data-responden="{{ $item->responden }}" data-ipk="{{ $item->ipk }}"
+                                                            data-ikm="{{ $item->ikm }}"
+                                                            data-gambar-url="{{ $item->gambar ? asset('storage/' . $item->gambar) : '' }}"
+                                                            data-dokumen-url="{{ $item->dokumen ? asset('storage/' . $item->dokumen) : '' }}">
+                                                            Edit
                                                         </button>
-                                                    </form>
+                                                        <form action="{{ route('skm.destroy', $item->id) }}" method="POST"
+                                                            class="d-inline">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="btn btn-sm btn-danger"
+                                                                onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?')">
+                                                                Hapus
+                                                            </button>
+                                                        </form>
+                                                    @endif
                                                 </td>
                                             </tr>
                                         @empty
@@ -241,8 +245,11 @@
                         <div class="col-md-6">
                             <div id="skmViewGambarContainer" style="margin-bottom:10px; display:none;">
                                 <strong>Gambar:</strong>
-                                <div><img id="skmViewGambar" src="" alt="Gambar"
-                                        style="max-width:100%; max-height:300px; border-radius:4px;"></div>
+                                <div><img id="skmViewGambar" class="clickable-preview" src="" alt="Gambar"
+                                        style="max-width:100%; max-height:300px; border-radius:4px; cursor:pointer;">
+                                </div>
+                                <div><a id="skmViewGambarDownload" href="#" download class="btn btn-sm btn-primary mt-2"
+                                        style="display:none;">Download Gambar</a></div>
                             </div>
                             <div id="skmViewDokumenContainer" style="display:none;">
                                 <strong>Dokumen:</strong>
@@ -261,6 +268,8 @@
             </div>
         </div>
     </div>
+
+    @include('components.image-preview-modal')
 
     <!-- Core JS Files -->
     <script src="{{ asset('js/core/popper.min.js') }}"></script>
@@ -382,12 +391,15 @@
 
                     const imgContainer = document.getElementById('skmViewGambarContainer');
                     const imgEl = document.getElementById('skmViewGambar');
+                    const imgDownload = document.getElementById('skmViewGambarDownload');
                     if (d.gambarUrl) {
                         imgEl.src = d.gambarUrl;
                         imgContainer.style.display = 'block';
+                        if (imgDownload) { imgDownload.href = d.gambarUrl; imgDownload.style.display = 'inline-block'; }
                     } else {
                         imgEl.src = '';
                         imgContainer.style.display = 'none';
+                        if (imgDownload) { imgDownload.href = '#'; imgDownload.style.display = 'none'; }
                     }
 
                     const docContainer = document.getElementById('skmViewDokumenContainer');

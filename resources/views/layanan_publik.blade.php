@@ -11,116 +11,118 @@
             <!-- Form Input Data -->
             <div class="row">
                 <div class="col-12">
-                    <div class="card mb-4">
-                        <div class="card-header pb-0">
-                            <h6 id="formTitle">Tambah Data Layanan Publik</h6>
-                        </div>
-                        <div class="card-body">
-                            <form id="layananForm" action="{{ route('layanan-publik.store') }}" method="POST"
-                                enctype="multipart/form-data">
-                                @csrf
-                                <input type="hidden" id="formMethod" name="_method" value="POST">
-                                <input type="hidden" id="dataId" name="id">
+                    @if(auth()->check() && auth()->user()->isAdmin())
+                        <div class="card mb-4">
+                            <div class="card-header pb-0">
+                                <h6 id="formTitle">Tambah Data Layanan Publik</h6>
+                            </div>
+                            <div class="card-body">
+                                <form id="layananForm" action="{{ route('layanan-publik.store') }}" method="POST"
+                                    enctype="multipart/form-data">
+                                    @csrf
+                                    <input type="hidden" id="formMethod" name="_method" value="POST">
+                                    <input type="hidden" id="dataId" name="id">
 
-                                <div class="row">
-                                    <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label for="tanggal" class="form-control-label">Tanggal</label>
-                                            <input type="date" class="form-control" id="tanggal" name="tanggal" required
-                                                value="{{ date('Y-m-d') }}">
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="row mt-3">
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="gambar" class="form-control-label">Gambar (opsional)</label>
-                                            <input type="file" class="form-control" id="gambar" name="gambar"
-                                                accept="image/*">
-                                            <img id="gambarPreview" src=""
-                                                style="max-height:100px; display:none; margin-top:10px;">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="dokumen" class="form-control-label">Dokumen (opsional)</label>
-                                            <input type="file" class="form-control" id="dokumen" name="dokumen"
-                                                accept=".pdf,.doc,.docx">
-                                            <div id="dokumenPreview" style="margin-top:10px; display:none;">
-                                                <a href="#" target="_blank" id="dokumenLink">Lihat dokumen</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="row mt-3">
-                                    <h6 class="mb-3 text-secondary">Jumlah Layanan Publik</h6>
                                     <div class="row">
-                                        <div class="col-md-3 mb-3">
+                                        <div class="col-md-3">
                                             <div class="form-group">
-                                                <label for="penyidikan_penyelidikan"
-                                                    class="form-control-label">Penyidikan & Penyelidikan</label>
-                                                <input type="number" class="form-control" id="penyidikan_penyelidikan"
-                                                    name="penyidikan_penyelidikan" min="0" value="0" required>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-3 mb-3">
-                                            <div class="form-group">
-                                                <label for="patroli_kapal" class="form-control-label">Patroli
-                                                    Kapal</label>
-                                                <input type="number" class="form-control" id="patroli_kapal"
-                                                    name="patroli_kapal" min="0" value="0" required>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-3 mb-3">
-                                            <div class="form-group">
-                                                <label for="sar" class="form-control-label">SAR</label>
-                                                <input type="number" class="form-control" id="sar" name="sar" min="0"
-                                                    value="0" required>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-3 mb-3">
-                                            <div class="form-group">
-                                                <label for="snbp" class="form-control-label">SNBP</label>
-                                                <input type="number" class="form-control" id="snbp" name="snbp" min="0"
-                                                    value="0" required>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-3 mb-3">
-                                            <div class="form-group">
-                                                <label for="pengawasan_salvage" class="form-control-label">Pengawasan
-                                                    Salvage</label>
-                                                <input type="number" class="form-control" id="pengawasan_salvage"
-                                                    name="pengawasan_salvage" min="0" value="0" required>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-3 mb-3">
-                                            <div class="form-group">
-                                                <label for="marpol" class="form-control-label">MARPOL</label>
-                                                <input type="number" class="form-control" id="marpol" name="marpol"
-                                                    min="0" value="0" required>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-3 mb-3">
-                                            <div class="form-group">
-                                                <label for="tamu_kantor" class="form-control-label">Tamu Kantor</label>
-                                                <input type="number" class="form-control" id="tamu_kantor"
-                                                    name="tamu_kantor" min="0" value="0" required>
+                                                <label for="tanggal" class="form-control-label">Tanggal</label>
+                                                <input type="date" class="form-control" id="tanggal" name="tanggal" required
+                                                    value="{{ date('Y-m-d') }}">
                                             </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <div class="row mt-4">
-                                    <div class="col-md-12">
-                                        <button type="submit" class="btn bg-gradient-primary" id="submitButton">Simpan
-                                            Data</button>
-                                        <button type="button" class="btn bg-gradient-secondary" id="cancelButton"
-                                            style="display: none;" onclick="resetForm()">Batal Edit</button>
+                                    <div class="row mt-3">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="gambar" class="form-control-label">Gambar (opsional)</label>
+                                                <input type="file" class="form-control" id="gambar" name="gambar"
+                                                    accept="image/*">
+                                                <img id="gambarPreview" src=""
+                                                    style="max-height:100px; display:none; margin-top:10px;">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="dokumen" class="form-control-label">Dokumen (opsional)</label>
+                                                <input type="file" class="form-control" id="dokumen" name="dokumen"
+                                                    accept=".pdf,.doc,.docx">
+                                                <div id="dokumenPreview" style="margin-top:10px; display:none;">
+                                                    <a href="#" target="_blank" id="dokumenLink">Lihat dokumen</a>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            </form>
+
+                                    <div class="row mt-3">
+                                        <h6 class="mb-3 text-secondary">Jumlah Layanan Publik</h6>
+                                        <div class="row">
+                                            <div class="col-md-3 mb-3">
+                                                <div class="form-group">
+                                                    <label for="penyidikan_penyelidikan"
+                                                        class="form-control-label">Penyidikan & Penyelidikan</label>
+                                                    <input type="number" class="form-control" id="penyidikan_penyelidikan"
+                                                        name="penyidikan_penyelidikan" min="0" value="0" required>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3 mb-3">
+                                                <div class="form-group">
+                                                    <label for="patroli_kapal" class="form-control-label">Patroli
+                                                        Kapal</label>
+                                                    <input type="number" class="form-control" id="patroli_kapal"
+                                                        name="patroli_kapal" min="0" value="0" required>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3 mb-3">
+                                                <div class="form-group">
+                                                    <label for="sar" class="form-control-label">SAR</label>
+                                                    <input type="number" class="form-control" id="sar" name="sar" min="0"
+                                                        value="0" required>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3 mb-3">
+                                                <div class="form-group">
+                                                    <label for="snbp" class="form-control-label">SNBP</label>
+                                                    <input type="number" class="form-control" id="snbp" name="snbp" min="0"
+                                                        value="0" required>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3 mb-3">
+                                                <div class="form-group">
+                                                    <label for="pengawasan_salvage" class="form-control-label">Pengawasan
+                                                        Salvage</label>
+                                                    <input type="number" class="form-control" id="pengawasan_salvage"
+                                                        name="pengawasan_salvage" min="0" value="0" required>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3 mb-3">
+                                                <div class="form-group">
+                                                    <label for="marpol" class="form-control-label">MARPOL</label>
+                                                    <input type="number" class="form-control" id="marpol" name="marpol"
+                                                        min="0" value="0" required>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3 mb-3">
+                                                <div class="form-group">
+                                                    <label for="tamu_kantor" class="form-control-label">Tamu Kantor</label>
+                                                    <input type="number" class="form-control" id="tamu_kantor"
+                                                        name="tamu_kantor" min="0" value="0" required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mt-4">
+                                        <div class="col-md-12">
+                                            <button type="submit" class="btn bg-gradient-primary" id="submitButton">Simpan
+                                                Data</button>
+                                            <button type="button" class="btn bg-gradient-secondary" id="cancelButton"
+                                                style="display: none;" onclick="resetForm()">Batal Edit</button>
+                                        </div>
+                                    </div>
+                                </form>
+                    @endif
                         </div>
                     </div>
                 </div>
@@ -250,27 +252,29 @@
                                                         data-dokumen-url="{{ $item->dokumen ? asset('storage/' . $item->dokumen) : '' }}">
                                                         Lihat
                                                     </button>
-                                                    <button type="button" class="btn btn-sm btn-info edit-btn me-1"
-                                                        data-id="{{ $item->id }}" data-tanggal="{{ $item->tanggal }}"
-                                                        data-penyidikan="{{ $item->penyidikan_penyelidikan }}"
-                                                        data-patroli="{{ $item->patroli_kapal }}"
-                                                        data-sar="{{ $item->sar }}" data-snbp="{{ $item->snbp }}"
-                                                        data-salvage="{{ $item->pengawasan_salvage }}"
-                                                        data-marpol="{{ $item->marpol }}"
-                                                        data-tamu="{{ $item->tamu_kantor }}"
-                                                        data-gambar-url="{{ $item->gambar ? asset('storage/' . $item->gambar) : '' }}"
-                                                        data-dokumen-url="{{ $item->dokumen ? asset('storage/' . $item->dokumen) : '' }}">
-                                                        Edit
-                                                    </button>
-                                                    <form action="{{ route('layanan-publik.destroy', $item->id) }}"
-                                                        method="POST" class="d-inline">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="btn btn-sm btn-danger"
-                                                            onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?')">
-                                                            Hapus
+                                                    @if(auth()->check() && auth()->user()->isAdmin())
+                                                        <button type="button" class="btn btn-sm btn-info edit-btn me-1"
+                                                            data-id="{{ $item->id }}" data-tanggal="{{ $item->tanggal }}"
+                                                            data-penyidikan="{{ $item->penyidikan_penyelidikan }}"
+                                                            data-patroli="{{ $item->patroli_kapal }}"
+                                                            data-sar="{{ $item->sar }}" data-snbp="{{ $item->snbp }}"
+                                                            data-salvage="{{ $item->pengawasan_salvage }}"
+                                                            data-marpol="{{ $item->marpol }}"
+                                                            data-tamu="{{ $item->tamu_kantor }}"
+                                                            data-gambar-url="{{ $item->gambar ? asset('storage/' . $item->gambar) : '' }}"
+                                                            data-dokumen-url="{{ $item->dokumen ? asset('storage/' . $item->dokumen) : '' }}">
+                                                            Edit
                                                         </button>
-                                                    </form>
+                                                        <form action="{{ route('layanan-publik.destroy', $item->id) }}"
+                                                            method="POST" class="d-inline">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="btn btn-sm btn-danger"
+                                                                onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?')">
+                                                                Hapus
+                                                            </button>
+                                                        </form>
+                                                    @endif
                                                 </td>
                                             </tr>
                                         @empty
@@ -328,46 +332,53 @@
 
     <!-- Modal untuk melihat detail -->
     <div class="modal fade" id="viewModal" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Detail Layanan Publik</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <div class="row g-3">
-              <div class="col-md-6">
-                <p><strong>Tanggal:</strong> <span id="viewTanggal"></span></p>
-                <p><strong>Penyidikan & Penyelidikan:</strong> <span id="viewPenyidikan"></span></p>
-                <p><strong>Patroli Kapal:</strong> <span id="viewPatroli"></span></p>
-                <p><strong>SAR:</strong> <span id="viewSar"></span></p>
-                <p><strong>SNBP:</strong> <span id="viewSnbp"></span></p>
-                <p><strong>Pengawasan Salvage:</strong> <span id="viewSalvage"></span></p>
-                <p><strong>MARPOL:</strong> <span id="viewMarpol"></span></p>
-                <p><strong>Tamu Kantor:</strong> <span id="viewTamu"></span></p>
-                <p><strong>Total:</strong> <span id="viewTotal"></span></p>
-              </div>
-              <div class="col-md-6">
-                <div id="viewGambarContainer" style="margin-bottom:10px; display:none;">
-                  <strong>Gambar:</strong>
-                  <div><img id="viewGambar" src="" alt="Gambar" style="max-width:100%; max-height:300px; border-radius:4px;"></div>
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detail Layanan Publik</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div id="viewDokumenContainer" style="display:none;">
-                  <strong>Dokumen:</strong>
-                  <div><a id="viewDokumenLink" href="#" target="_blank">Buka dokumen</a></div>
-                  <div id="viewDokumenFrameContainer" style="margin-top:10px; display:none;">
-                    <iframe id="viewDokumenIframe" src="" style="width:100%; height:400px;" frameborder="0"></iframe>
-                  </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <p><strong>Tanggal:</strong> <span id="viewTanggal"></span></p>
+                            <p><strong>Penyidikan & Penyelidikan:</strong> <span id="viewPenyidikan"></span></p>
+                            <p><strong>Patroli Kapal:</strong> <span id="viewPatroli"></span></p>
+                            <p><strong>SAR:</strong> <span id="viewSar"></span></p>
+                            <p><strong>SNBP:</strong> <span id="viewSnbp"></span></p>
+                            <p><strong>Pengawasan Salvage:</strong> <span id="viewSalvage"></span></p>
+                            <p><strong>MARPOL:</strong> <span id="viewMarpol"></span></p>
+                            <p><strong>Tamu Kantor:</strong> <span id="viewTamu"></span></p>
+                            <p><strong>Total:</strong> <span id="viewTotal"></span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <div id="viewGambarContainer" style="margin-bottom:10px; display:none;">
+                                <strong>Gambar:</strong>
+                                <div><img id="viewGambar" class="clickable-preview" src="" alt="Gambar"
+                                        style="max-width:100%; max-height:300px; border-radius:4px; cursor:pointer;">
+                                </div>
+                                <div><a id="viewGambarDownload" href="#" download class="btn btn-sm btn-primary mt-2"
+                                        style="display:none;">Download Gambar</a></div>
+                            </div>
+                            <div id="viewDokumenContainer" style="display:none;">
+                                <strong>Dokumen:</strong>
+                                <div><a id="viewDokumenLink" href="#" target="_blank">Buka dokumen</a></div>
+                                <div id="viewDokumenFrameContainer" style="margin-top:10px; display:none;">
+                                    <iframe id="viewDokumenIframe" src="" style="width:100%; height:400px;"
+                                        frameborder="0"></iframe>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-              </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                </div>
             </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-          </div>
         </div>
-      </div>
     </div>
+
+    @include('components.image-preview-modal')
 
     <!-- Core JS Files -->
     <script src="{{ asset('js/core/popper.min.js') }}"></script>
@@ -468,7 +479,7 @@
                 });
             });
             document.querySelectorAll('.view-btn').forEach(button => {
-                button.addEventListener('click', function() {
+                button.addEventListener('click', function () {
                     const d = this.dataset;
                     document.getElementById('viewTanggal').textContent = d.tanggal || '-';
                     document.getElementById('viewPenyidikan').textContent = d.penyidikan || '0';
@@ -483,12 +494,15 @@
 
                     const imgContainer = document.getElementById('viewGambarContainer');
                     const imgEl = document.getElementById('viewGambar');
+                    const imgDownload = document.getElementById('viewGambarDownload');
                     if (d.gambarUrl) {
                         imgEl.src = d.gambarUrl;
                         imgContainer.style.display = 'block';
+                        if (imgDownload) { imgDownload.href = d.gambarUrl; imgDownload.style.display = 'inline-block'; }
                     } else {
                         imgEl.src = '';
                         imgContainer.style.display = 'none';
+                        if (imgDownload) { imgDownload.href = '#'; imgDownload.style.display = 'none'; }
                     }
 
                     const docContainer = document.getElementById('viewDokumenContainer');

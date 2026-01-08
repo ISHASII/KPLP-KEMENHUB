@@ -31,6 +31,15 @@ Route::middleware('auth')->group(function () {
     // Dashboard (root URL setelah login)
     Route::get('/', [MainController::class, 'index'])->name('dashboard');
 
+    // Public-to-auth users: report indexes (view-only)
+    Route::get('/layanan-publik', [LayananPublikController::class, 'index'])->name('layanan-publik.index');
+    Route::get('/laporan-ppid', [LaporanPpidController::class, 'index'])->name('ppid.index');
+    Route::get('/laporan-skm', [LaporanSkmController::class, 'index'])->name('skm.index');
+    Route::get('/laporan-media-visual', [LaporanMediaVisualController::class, 'index'])->name('media_visual.index');
+    Route::get('/laporan-berita-kplp', [LaporanBeritaKplpController::class, 'index'])->name('berita_kplp.index');
+    Route::get('/laporan-siaran-pers', [LaporanSiaranPersController::class, 'index'])->name('siaran_pers.index');
+    Route::get('/pengelolaan-laporan-masuk', [PengelolaanLaporanMasukController::class, 'index'])->name('laporan_masuk.index');
+
     // Logout (tetap bisa diakses semua user yang sudah login)
     Route::post('/logout', [MainController::class, 'logout'])->name('logout');
 });
@@ -40,42 +49,36 @@ Route::middleware(['auth', 'admin'])->group(function () {
     // Shipping
     Route::get('/shipping', [MainController::class, 'shipping'])->name('shipping');
 
-    // Layanan Publik
+    // Layanan Publik (management routes remain admin-only)
     Route::resource('layanan-publik', LayananPublikController::class)
-        ->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
+        ->only(['create', 'store', 'edit', 'update', 'destroy']);
 
-    // Laporan PPID
-    Route::get('/laporan-ppid', [LaporanPpidController::class, 'index'])->name('ppid.index');
+    // Laporan PPID (write routes remain admin-only)
     Route::post('/laporan-ppid/store', [LaporanPpidController::class, 'store'])->name('ppid.store');
     Route::put('/laporan-ppid/{id}', [LaporanPpidController::class, 'update'])->name('ppid.update');
     Route::delete('/laporan-ppid/{id}', [LaporanPpidController::class, 'destroy'])->name('ppid.destroy');
 
-    // Laporan SKM
-    Route::get('/laporan-skm', [LaporanSkmController::class, 'index'])->name('skm.index');
+    // Laporan SKM (write routes remain admin-only)
     Route::post('/laporan-skm/store', [LaporanSkmController::class, 'store'])->name('skm.store');
     Route::put('/laporan-skm/{id}', [LaporanSkmController::class, 'update'])->name('skm.update');
     Route::delete('/laporan-skm/{id}', [LaporanSkmController::class, 'destroy'])->name('skm.destroy');
 
-    // Laporan Media Visual
-    Route::get('/laporan-media-visual', [LaporanMediaVisualController::class, 'index'])->name('media_visual.index');
+    // Laporan Media Visual (write routes remain admin-only)
     Route::post('/laporan-media-visual/store', [LaporanMediaVisualController::class, 'store'])->name('media_visual.store');
     Route::put('/laporan-media-visual/{id}', [LaporanMediaVisualController::class, 'update'])->name('media_visual.update');
     Route::delete('/laporan-media-visual/{id}', [LaporanMediaVisualController::class, 'destroy'])->name('media_visual.destroy');
 
-    // Laporan Berita KPLP
-    Route::get('/laporan-berita-kplp', [LaporanBeritaKplpController::class, 'index'])->name('berita_kplp.index');
+    // Laporan Berita KPLP (write routes remain admin-only)
     Route::post('/laporan-berita-kplp/store', [LaporanBeritaKplpController::class, 'store'])->name('berita_kplp.store');
     Route::put('/laporan-berita-kplp/{id}', [LaporanBeritaKplpController::class, 'update'])->name('berita_kplp.update');
     Route::delete('/laporan-berita-kplp/{id}', [LaporanBeritaKplpController::class, 'destroy'])->name('berita_kplp.destroy');
 
-    // Laporan Siaran Pers
-    Route::get('/laporan-siaran-pers', [LaporanSiaranPersController::class, 'index'])->name('siaran_pers.index');
+    // Laporan Siaran Pers (write routes remain admin-only)
     Route::post('/laporan-siaran-pers/store', [LaporanSiaranPersController::class, 'store'])->name('siaran_pers.store');
     Route::put('/laporan-siaran-pers/{id}', [LaporanSiaranPersController::class, 'update'])->name('siaran_pers.update');
     Route::delete('/laporan-siaran-pers/{id}', [LaporanSiaranPersController::class, 'destroy'])->name('siaran_pers.destroy');
 
-    // Pengelolaan Laporan Masuk
-    Route::get('/pengelolaan-laporan-masuk', [PengelolaanLaporanMasukController::class, 'index'])->name('laporan_masuk.index');
+    // Pengelolaan Laporan Masuk (write routes remain admin-only)
     Route::post('/pengelolaan-laporan-masuk/store', [PengelolaanLaporanMasukController::class, 'store'])->name('laporan_masuk.store');
     Route::put('/pengelolaan-laporan-masuk/{id}', [PengelolaanLaporanMasukController::class, 'update'])->name('laporan_masuk.update');
     Route::delete('/pengelolaan-laporan-masuk/{id}', [PengelolaanLaporanMasukController::class, 'destroy'])->name('laporan_masuk.destroy');
